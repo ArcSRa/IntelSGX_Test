@@ -1,0 +1,3 @@
+loader.argv = ["/app/enc_bench"]
+sgx.enclave_size = "2G"
+sgx.thread_num = 4

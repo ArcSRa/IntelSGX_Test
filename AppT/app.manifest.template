@@ -1,0 +1,13 @@
+libos.entrypoint = "python3"
+loader.argv = ["python3", "/app/app.py"]
+
+sgx.enclave_size = "1G"
+sgx.thread_num = 8
+
+# Fichiers chiffrés (secret scellé)
+fs.mounts = [
+  { type = "encrypted", path = "/secrets", uri = "file:/app/sealed" }
+]
+
+# Réseau / horloge (selon besoins)
+sys.enable_sgx_clock = true
