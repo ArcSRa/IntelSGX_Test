@@ -1,5 +1,5 @@
-
-CFLAGS = -Wall -Wextra -lcrypto
+CFLAGS = -Wall -Wextra
+LDFLAGS = -lcrypto
 ifeq ($(DEBUG),1)
 GRAMINE_LOG_LEVEL = debug
 CFLAGS += -g
@@ -15,6 +15,7 @@ all: chiiff_bench.manifest.sgx chiff_bench_sans.sig
 endif
 
 chiff_bench_sans: chiff_bench_sans.o
+        $(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 chiff_bench_sans.o: chiff_bench.c
 
