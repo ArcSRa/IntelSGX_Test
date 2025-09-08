@@ -1,3 +1,4 @@
-loader.argv = ["/app/enc_bench"]
-sgx.enclave_size = "2G"
-sgx.thread_num = 4
+loader.argv = ["/opt/testSGX/IntelSGX_Test/ChiffrementPerf"]
+sgx.enclave_size = "1G"
+sgx.thread_num = 2
+sgx.enable_stats = true
