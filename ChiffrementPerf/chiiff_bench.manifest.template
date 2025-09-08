@@ -1,0 +1,7 @@
+loader.preload = file:libsysdb.so
+loader.exec = file:chiff_bench
+fs.mounts = [
+    { path = "/", uri = "file:.", type = "chroot", options = ["ro"] }
+]
+sys.stdout = "file:stdout"
+sys.stderr = "file:stderr"

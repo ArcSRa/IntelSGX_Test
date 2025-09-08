@@ -1,4 +1,0 @@
-loader.argv = ["/opt/testSGX/IntelSGX_Test/ChiffrementPerf"]
-sgx.enclave_size = "1G"
-sgx.thread_num = 2
-sgx.enable_stats = true
