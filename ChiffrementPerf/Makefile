@@ -16,7 +16,6 @@ endif
 
 chiff_bench_sans: chiff_bench_sans.o
         $(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
-
 chiff_bench_sans.o: chiff_bench.c
 
 chiiff_bench.manifest: chiiff_bench.manifest.template chiff_bench_sans
