@@ -16,6 +16,6 @@ sgx.edmm_enable = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
 
 sgx.trusted_files = [
   "file:chiff_bench_sans",
-  "file:/lib/x86_64-linux-gnu/libcrypto.so.3",
+  "file:/usr/lib/x86_64-linux-gnu/libcrypto.so.3",
   "file:{{ gramine.runtimedir() }}/"
 ]
