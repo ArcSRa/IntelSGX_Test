@@ -1,9 +1,12 @@
 libos.entrypoint = "/chiff_bench_sans"
 loader.log_level = "{{ log_level }}"
-loader.env.LD_LIBRARY_PATH = "/lib"
+
+loader.env.LD_LIBRARY_PATH = "/lib/x86_64-linux-gnu:/lib:/usr/lib"
 
 fs.mounts = [
+  { path = "/lib/x86_64-linux-gnu", uri = "file:/lib/x86_64-linux-gnu" },
   { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
+  { path = "/usr/lib", uri = "file:/usr/lib" },
   { path = "/chiff_bench_sans", uri = "file:chiff_bench_sans" }
 ]
 
@@ -12,5 +15,6 @@ sgx.edmm_enable = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
 
 sgx.trusted_files = [
   "file:chiff_bench_sans",
+  "file:/lib/x86_64-linux-gnu/libcrypto.so.3",
   "file:{{ gramine.runtimedir() }}/"
 ]
