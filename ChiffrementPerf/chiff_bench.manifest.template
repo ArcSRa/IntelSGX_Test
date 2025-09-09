@@ -1,11 +1,8 @@
-[loader]
-preload = "file:libsysdb.so"
-exec = "file:chiff_bench"
-
+loader.entrypoint = "file:libsysdb.so"
+libos.entrypoint = "chiff_bench"
 [fs]
 mounts = [
     { path = "/", uri = "file:.", type = "chroot", options = ["ro"] }
 ]
-
 sys.stdout = "file:stdout"
 sys.stderr = "file:stderr"
