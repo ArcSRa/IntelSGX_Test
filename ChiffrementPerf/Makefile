@@ -1,6 +1,5 @@
-CC      = gcc
 CFLAGS  = -Wall -Wextra
-LDLIBS  = -lcrypto
+LDFLAGS  = -lcrypto
 
 ifeq ($(DEBUG),1)
 GRAMINE_LOG_LEVEL = debug
@@ -10,12 +9,6 @@ GRAMINE_LOG_LEVEL = error
 CFLAGS += -O3
 endif
 
-ifeq ($(SGX),)
-GRAMINE = gramine-direct
-else
-GRAMINE = gramine-sgx
-endif
-
 .PHONY: all
 all: chiff_bench_sans chiff_bench_sans.manifest
 ifeq ($(SGX),1)
@@ -23,10 +16,10 @@ all: chiff_bench_sans.manifest.sgx chiff_bench_sans.sig
 endif
 
 chiff_bench_sans: chiff_bench_sans.o
-	$(CC) $(CFLAGS) $< $(LDLIBS) -o $@
+	$(CC) $(CFLAGS) chiff_bench_sans.o -o chiff_bench_sans $(LDFLAGS)
 
 chiff_bench_sans.o: chiff_bench.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c chiff_bench.c -o chiff_bench_sans.o
 
 chiff_bench_sans.manifest: chiff_bench.manifest.template chiff_bench_sans
 	gramine-manifest \
@@ -40,10 +33,17 @@ chiff_bench_sans.sig chiff_bench_sans.manifest.sgx: chiff_bench_sans.manifest
 		--output $<.sgx
 	gramine-manifest-check $<.sgx
 
+
+ifeq ($(SGX),)
+GRAMINE = gramine-direct
+else
+GRAMINE = gramine-sgx
+endif
+
 .PHONY: check
 check: all
 	$(GRAMINE) chiff_bench_sans > OUTPUT
-	echo "test chiff sans sgx" | diff OUTPUT -
+	echo "test chiff sgx" | diff OUTPUT -
 	@echo "[ Success ]"
 
 .PHONY: clean
