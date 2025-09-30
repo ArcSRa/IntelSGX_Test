@@ -1,9 +1,13 @@
-# Utiliser l'image officielle Ubuntu 24.04 LTS
 FROM ubuntu:24.04
 
-# Installer les dépendances communes et outils nécessaires
+ARG SGX_VERSION=2.26
+ARG SDK_BIN=sgx_linux_x64_sdk_2.26.100.0.bin
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Dépendances communes et outils nécessaires
 RUN apt-get update && apt-get install -y \
     build-essential \
+    apt-utils \
     autoconf \
     bison \
     gawk \
@@ -20,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     python3-voluptuous \
     wget \
     libunwind8 \
+    libssl3 \
     libssl-dev \
     musl-tools \
     python3-pytest \
@@ -30,33 +35,48 @@ RUN apt-get update && apt-get install -y \
     python3-cryptography \
     python3-pip \
     python3-protobuf \
+    gdb \
     git \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    nano \
+    automake \
+    libtool \
+    perl \
+    libprotobuf-dev \
+    libsystemd0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Ajouter clé et dépôt Intel SGX
-RUN curl -fsSLo /usr/share/keyrings/intel-sgx-deb.asc https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key && \
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-sgx-deb.asc] https://download.01.org/intel-sgx/sgx_repo/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/intel-sgx.list
+# Clé et dépôt SGX (runtime/PSW via apt, SDK via bin officiel)
+RUN curl -fsSL https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | tee /usr/share/keyrings/intel-sgx-deb.asc >/dev/null \
+  && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-sgx-deb.asc] https://download.01.org/intel-sgx/sgx_repo/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/intel-sgx.list
 
-# Mettre à jour et installer les paquets SGX
-RUN apt-get update && apt-get install -y libsgx-dcap-quote-verify-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libsgx-dcap-quote-verify-dev libsgx-urts libsgx-launch && rm -rf /var/lib/apt/lists/*
 
-# Cloner le dépôt Gramine
+WORKDIR /opt/intel
+
+# SDK complet pour développement et SEAL
+RUN wget https://download.01.org/intel-sgx/sgx-linux/${SGX_VERSION}/distro/ubuntu24.04-server/${SDK_BIN} \
+    && chmod +x ${SDK_BIN} \
+    && echo yes | ./${SDK_BIN} \
+    && rm -f ${SDK_BIN}
+
+# Vérifier que le header seal est bien là
+RUN test -f /opt/intel/sgxsdk/include/sgx_tseal.h
+
+ENV SGX_SDK=/opt/intel/sgxsdk
+ENV PATH="${SGX_SDK}/bin:/usr/local/bin:$PATH"
+RUN unset LD_LIBRARY_PATH
+# Cloner Gramine et exemple SGX
+WORKDIR /opt
 RUN git clone https://github.com/gramineproject/gramine.git /opt/gramine
 RUN git clone https://github.com/ArcSRa/IntelSGX_Test.git /opt/testSGX
 
-# Configurer le build avec meson (SGX activé, direct désactivé)
 WORKDIR /opt/gramine
 RUN meson setup build/ --buildtype=release -Ddirect=enabled -Dsgx=enabled
-
-# Compiler Gramine
 RUN meson compile -C build/
-
-# Installer Gramine
 RUN meson install -C build/
 
-# Ajouter Gramine au PATH
-ENV PATH="/usr/local/bin:$PATH"
 WORKDIR /opt/testSGX
 
-#CMD /bin/bash -c "gramine-sgx-gen-private-key && make SGX=1 && gramine-sgx helloworld && sleep infinity"
+# Entrée par défaut: shell interactif
+CMD ["/bin/bash"]
