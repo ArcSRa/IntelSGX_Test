@@ -1,0 +1,11 @@
+enclave {
+    trusted {
+        // ECALL qui retourne un pointeur vers le secret dans lenclave
+        public void get_secret([out, size=max_len] char* secret, uint32_t max_len);
+ //public void store_secret_key([in, count=32] const char *key);
+    };
+
+    untrusted {
+        void print_msg([in, string] const char* msg);
+    };
+};
