@@ -1,0 +1,31 @@
+#SEULEMENT POUR DEBUG/TEST, MIEUX CONTROLER LES FICHIERS AUTORISE
+#loader.entrypoint = "file:{{ gramine.libos }}"
+libos.entrypoint = "./chiff_bench_sans"
+loader.env.LD_LIBRARY_PATH = "/usr/lib/x86_64-linux-gnu:/lib"
+#loader.log_level = "debug"
+
+
+
+fs.mounts = [
+  { path = "/lib", uri = "file:{{ gramine.runtimedir() }}" },
+  { path = "/usr/lib", uri = "file:/usr/lib" },
+  { path = "/usr/lib/x86_64-linux-gnu/libc.so.6", uri = "file:/usr/lib/x86_64-linux-gnu/libc.so.6" },
+  { path = "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", uri = "file:/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2" },
+  { type = "encrypted", path = "/data/encrypted", uri = "file:data/encrypted", key_name="_sgx_mrenclave" },
+  { path = "/chiff_bench_sans", uri = "file:chiff_bench_sans" }
+]
+
+sgx.debug = false
+sgx.edmm_enable=true
+
+sgx.allowed_files = [ 
+  "file:data/encrypted/", 
+  "file:data/encrypted/counter.bin"
+]
+sgx.trusted_files = [
+#  "file:{{ gramine.libos }}",
+  "file:/usr/lib/x86_64-linux-gnu/libc.so.6",
+  "file:/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2",  
+  "file:{{ gramine.runtimedir() }}/",
+  "file:chiff_bench_sans",
+]
